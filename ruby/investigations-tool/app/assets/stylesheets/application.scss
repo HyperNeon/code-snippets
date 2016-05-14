@@ -1,0 +1,16 @@
+// ☃
+@import /REDACTED/;
+@import /REDACTED/;
+@import 'jquery-tablesorter/theme.blue';
+@import 'jquery-tablesorter/addons/pager/jquery.tablesorter.pager';
+@import 'jquery.countdown';
+@import "font-awesome-sprockets";
+@import "font-awesome";
+
+.tablesorter-blue tbody tr.flagged.odd > td {
+  background-color: pink;
+}
+
+.tablesorter-blue tbody tr.flagged.even > td {
+  background-color: #ffd4dc;
+}

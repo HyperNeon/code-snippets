@@ -1,0 +1,25 @@
+<div class="row" style="padding-top: 5px">
+  <div class="col-md-8">
+    <h1>
+      <%= @utility.code.upcase + "'s Issues" %>
+      <% if @utility.issues.new_issues.any?%>
+        <%= image_tag "warning-large.png" %>
+      <% end %>
+    </h1>
+  </div>
+  <div class="col-md-4">
+    <h3>
+      <%= link_to "#{@utility.code.upcase}'s History", history_url(client: @utility.code) %>
+    </h3>
+  </div>
+</div>
+  
+<% if @utility_data.nil? %>
+  <p>A deleted ticket has been discovered. IT will resolve this on the next update. Please Try Again Later</p>
+<% elsif @utility_data.empty? %>
+  <p>No Issues Found For This Utility</p>
+<% else %>
+  <% @utility_data.each do  | title, data_array | %>
+    <%= render partial: "layouts/ticket_table", locals: {data_array: data_array, title: title, table_link_columns: [0,2,3], table_link_field: 0, id: nil} %>
+  <% end %>
+<% end %>

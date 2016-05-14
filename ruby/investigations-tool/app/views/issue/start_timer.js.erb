@@ -1,0 +1,8 @@
+<% if @toggl_result %>
+  $("#toggl_details").html("<div class='alert alert-info' role='alert'> <p>Timer Started Successfully</p> </div>"
+  );
+  $("#toggl_restart_button").show();
+<% else %>
+  $("#toggl_details").html("<div class='alert alert-danger' role='alert'> <p>Something Went Wrong While Starting Toggl</p> </div>"
+  );
+<% end %>

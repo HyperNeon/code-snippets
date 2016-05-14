@@ -1,0 +1,29 @@
+<% if @ticket_data.nil? %>
+  <div class='alert alert-danger' role='alert'> 
+    <strong>No Ticket</strong> Ticket Was Not Found In Jira
+  </div>
+<% else %>
+  <h2>
+    <%= link_to(@ticket_data['Ticket Number'], 'https:///REDACTED//browse/' +
+                    @ticket_data['Ticket Number'], target: "_blank") %> - <%= @ticket_data['Summary'] %>
+  </h2>
+  <%= render partial: 'layouts/ticket_details', locals: {issue_data: @ticket_data, transitions: @issue_transitions, resolutions: @resolutions}%>
+  <% if @issues.empty? %>
+    <div class='alert alert-warning' role='alert'> 
+      <strong>No Issues</strong> There are no Investigations Tool issues associated with this ticket
+    </div>
+  <% else %>
+    <div class='alert alert-warning' role='alert'> 
+      <strong>Multiple Issues</strong> There are multiple issue associated with this ticket
+    </div>
+    <h4>Plese Select An Issue</h4>
+    <ul>
+      <% @issues.each do |issue| %>
+        <li><%= link_to issue.investigation.name, issue_url(id: issue.id)%></li>
+      <% end %>
+    </ul>
+  <% end %>
+<% end %>
+
+
+  

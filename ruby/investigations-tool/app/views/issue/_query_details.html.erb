@@ -1,0 +1,23 @@
+<h2> Query Details </h2>
+<div class="well">
+  <%= simple_format(h(query["description"])) %>
+</div>
+<%= form_tag(issue_query_url(id:id, query: query.to_json), method: "post", remote: true) do %>
+  <% if query["options"] %>
+    <h4>Additional Params</h4>
+    <div class="row" style="padding: 10px">
+      <% query["options"].each_with_index do |option, i| %>
+        <div class="col-md-4">
+          <%= label_tag("option-#{option}".to_sym, option) %>
+          <%= text_field_tag("option-#{option}".to_sym, '') %>
+        </div>
+        <% if (i+1)%3 == 0 %>
+          </div>
+          <div class="row">
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+  <%= submit_tag "Submit", :class => "btn btn-success", id: "submit_query" %>
+<% end %>
+<%= javascript_include_tag "query_details.js" %>

@@ -1,0 +1,5 @@
+<%= form_tag(issue_query_url(id: id, query: query.to_json, query_id: query_id), method: "post", remote: true, id: "refresh_form") do %>
+    <p class="bg-info">UUID: <%= query_id %></p>
+
+    <div id="timer"></div>
+<% end %>

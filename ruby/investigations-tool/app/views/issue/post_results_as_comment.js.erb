@@ -1,0 +1,9 @@
+<% if @jira_post_result %>
+    $("#jira_submission_status").html("<div class='alert alert-info' role='alert'> <p>Results Posted Successfully</p> </div>"
+    );
+    $("#post_results_button").show();
+<% else %>
+    $("#jira_submission_status").html("<div class='alert alert-danger' role='alert'> <p>Something Went Wrong While Posting Results</p> </div>"
+    );
+    $("#post_results_button").show();
+<% end %>

@@ -1,0 +1,44 @@
+<% if @response.errors? %>
+  $("#query_result").html("<div class='alert alert-danger' role='alert'> <strong>Query Failure!</strong>  Status: <%= @response.status %>  "+
+        "Errors: <%= escape_javascript(@response.errors) %></div>"
+  );
+<% else %>
+  <% if @response.result || @response.status == "COMPLETED" %>
+    load_query_result();
+    $("#post_results_button").show();
+  <% else %>
+    $("#query_result").html("<%= escape_javascript(render partial: 'issue/query_running', locals: {id: @issue.id, query: @query, query_id: @response.id}) %>"
+    );
+    $("#timer").countdown({until: +15, layout: '<h4>Running Query</h4><h5>Refreshing in {sn} {sl}...</h5>',
+        onExpiry: refresh, expiryText: "REFRESHING..."}
+    );
+  <% end %>
+<% end %>
+
+function refresh() {
+  $("#refresh_form").submit();
+}
+
+function prepare_data_table() {
+    $("#jira_submission_status").html("<div class='alert alert-info' role='alert'> <p>Posting Table...</p> </div>");
+    $("#post_results_button").hide();
+    var table = $('#result_tableResult').tableToJSON();
+    $('#table_json').val(JSON.stringify(table));
+    $("#post_results_form").submit();
+}
+
+function load_query_result() {
+    angular.element(document).ready(function () {
+
+        var elem = angular.element($('#query_result'));
+        //get the injector.
+        var injector = elem.injector();
+
+        scope= elem.scope();
+
+        injector.invoke(function($compile) {
+            var query_result = $compile("<%= escape_javascript(render partial: 'layouts/ticket_table', locals: {data_array: @response.result, title: 'Result', id: @response.id}) %>")(scope);
+            $("#query_result").html(query_result);
+        });
+    });
+}

@@ -1,0 +1,48 @@
+<% content_for :main do %>
+  <% if flash[:alert] %>
+    <div class='alert alert-danger' role='alert'>
+      <p> <%= flash[:alert] %> </p>
+    </div>
+  <% end %>
+  <% if flash[:notice] %>
+      <div class='alert alert-info' role='alert'>
+        <p> <%= flash[:notice] %> </p>
+      </div>
+  <% end %>
+  <%= yield %>
+<% end %>
+
+<% content_for :app_sidebar do %>
+  <%= form_tag(ticket_search_url, method: "get", style: "padding-bottom: 10px") do %>
+    <%= label_tag(:ticket, "Ticket Search") %>
+    <%= text_field_tag(:ticket, "", style: "width: 100%") %>
+  <% end %>
+  <hr>
+  <%= form_tag(utility_url, method: "get", style: "padding-bottom: 10px") do %>
+    <%= label_tag(:utility_id, "Utility Search") %>
+    <%= select_tag(:utility_id, options_from_collection_for_select(@utilities, :id, :code),
+     :onchange => "this.form.submit()", prompt: 'Utility', class: "btn btn-default dropdown-toggle", style: "width: 100%") %>
+  <% end %>
+  <hr>
+  <%= label_tag(:investigations, "Investigation List") %>
+  <ul nowrap>
+    <% @investigations.each do |investigation| %>
+      <li>
+        <% if investigation.issues.new_issues.any?%>
+          <%= image_tag "warning.png" %>
+        <% end %>
+        <%= link_to investigation.name.titleize, investigation_url(id: investigation.id), :class => 'app-sidebar' %>
+      </li>
+    <% end %>
+  </ul>
+  <hr>
+  <%= link_to "Issue History", '/history/index', :class => 'app-sidebar' %>
+  <%= csrf_meta_tag %>
+
+<% end %>
+
+<% content_for :application_title do %>
+  <%= link_to "Investigations", '/dashboard/index', :class => 'app-sidebar--title' %>
+<% end %>
+
+<%= render template: 'layouts/base_with_auth' %>

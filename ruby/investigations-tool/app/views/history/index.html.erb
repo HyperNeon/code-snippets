@@ -1,0 +1,15 @@
+<h1>
+  Issue History
+</h1>
+
+<% if params[:client] %>
+    <p><%= "Client Filter: #{params[:client]}" %></p>
+<% end %>
+<% if params[:investigation] %>
+    <p><%= "Investigation Filter: #{params[:investigation]}" %></p>
+<% end %>
+<% unless @all_issue_data.nil? %>
+    <%= render partial: "layouts/ticket_table", locals: {data_array: @all_issue_data, title: "Issues", table_link_columns: [0,2,3], table_link_field: 0, id: nil} %>
+<% end %>
+
+

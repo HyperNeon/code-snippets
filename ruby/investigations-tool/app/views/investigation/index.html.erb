@@ -1,0 +1,41 @@
+<div class="row" style="padding-top: 5px">
+  <div class="col-md-8">
+    <h1>
+      <%= @investigation.name %>
+      <% if @investigation.issues.new_issues.any?%>
+          <%= image_tag "warning-large.png" %>
+      <% end %>
+    </h1>
+  </div>
+  <div class="col-md-4">
+    <h3>
+      <%= link_to "#{@investigation.name.titleize} History", history_url(investigation: @investigation.name) %>
+    </h3>
+  </div>
+</div>
+
+<% if @investigation.update_status == true %>
+  <h4 id = "refresh_timer"></h4>
+<% else %>
+    <%= link_to 'Refresh', investigation_refresh_url(id: @investigation.id), class: "btn-primary", id:"refresh_button" %>
+    <div id = "refresh_text"></div>
+<% end %>
+      
+  
+<% if @investigation_data.include? 'ticket_deleted' %>
+    <p>A deleted ticket has been discovered. IT will resolve this on the next update. Please Try Again Later</p>
+<% elsif @investigation_data.include? 'jira_down'%>
+    <p>Jira Down. Please Try Again Later</p>
+<% else %>
+  <% @investigation_data.each do  | title, data_array | %>
+    <%= render partial: "layouts/ticket_table", locals: {data_array: data_array, title: title, table_link_columns: [0,2,3], table_link_field: 0, id: nil} %>
+  <% end %>
+<% end %>
+
+<%= javascript_include_tag "investigation.js" %>
+
+<script type="text/javascript">
+  $("#refresh_timer").countdown({until: +5, layout: 'Refreshing - Page Will Reload In {sn} {sl}...',
+        expiryUrl: "<%= investigation_url(id: @investigation.id) %>", expiryText: "RELOADING..."});
+</script>
+

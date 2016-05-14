@@ -1,0 +1,93 @@
+<% if @issue_data.nil? %>
+  <p>No Ticket Information Was Available. This Ticket Has Most Likely Been Deleted.</p>
+<% else %>
+  <div class="row" style="padding-top: 5px">
+    <div class="col-md-8">
+      <h2>
+        <%= link_to(@issue_data['Ticket Number'], 'https:///REDACTED//browse/' +
+              @issue_data['Ticket Number'], target: "_blank") %> - <%= @issue_data['Summary'] %>
+      </h2>
+    </div>
+    <div class="col-md-4">
+      <h3>
+        <%= link_to "History", history_url(investigation: @issue.investigation.name, client: @issue.utility.code) %>
+        <%= link_to("/REDACTED/", "/REDACTED//prod/utilities/#{@issue_data['Utility'].upcase}", :target => "_blank", :style => "padding: 10px") %>
+        <%= link_to("Splunk", "/REDACTED//en-US/app/search/search?q=search%20client%3D#{@issue_data['Utility'].upcase}", :target => "_blank") %>
+      </h3>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12">
+      <% if @issue.investigation_path_status.nil? %>
+        <%= link_to 'Mark As Viewed', issue_viewed_url(id: @issue.id), class: "btn-primary" %>
+      <% end %>
+    </div>
+  </div>
+  <div class="row" style="padding-top: 5px">
+    <div class="col-md-12">
+      <% if current_user.toggl_token.present? %>
+        <%= form_tag(start_timer_url(id:@issue.id), method: "post", remote: true, id: "timer_form") do %>
+          <div id="toggl_details">
+          </div>
+          <%= button_tag "Start Toggl Timer", :class => "btn btn-danger", id: "toggl_start_button" %>
+          <%= button_tag "Restart Toggl Timer", :class => "btn btn-danger", id: "toggl_restart_button", style: "display: none;" %>
+          <%= tag(:input, :type => "hidden", :name => request_forgery_protection_token.to_s, :value => form_authenticity_token) %>
+          <%= hidden_field_tag(:summary, @issue_data['Summary']) %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+  <%= render partial: 'layouts/ticket_details', locals: {issue_data: @issue_data, transitions: @issue_transitions, resolutions: @resolutions} %>
+<% end %>
+<div class="panel panel-default">
+  <div class="panel-body">
+    <% if @queries.errors? %>
+      <div class='alert alert-danger' role='alert'>
+        <strong>Failure</strong>  Failed to get queries due to <%= @queries.errors %>
+      </div>
+    <% else %>
+      <%= form_tag(issue_details_url(id:@issue.id), method: "post", remote: true) do %>
+          <%= label_tag(:query_index, "What query do you want to run?") %>
+          <%= select_tag(:query_index, options_for_select(@queries.map {|q| [q[:name], q[:name]]}),
+            :onchange => "$(this).submit()", prompt: 'Query', required: true) %>
+          <%= tag(:input, :type => "hidden", :name => request_forgery_protection_token.to_s, :value => form_authenticity_token) %>
+          <%= hidden_field_tag(:queries, @queries.result.to_json) %>
+      <% end %>
+    <% end %>
+    <p><div id="query_details"></div></p>
+  </div>
+</div>
+
+<div id="jira_submission_status"></div>
+<div ng-controller="ModalCtrl">
+    <script type="text/ng-template" id="post_results_comment.html">
+      <%= form_tag(post_results_as_comment_url(id:@issue.id), method: 'post', remote: true, id: 'post_results_form') do %>
+          <%= tag(:input, :type => 'hidden', :name => request_forgery_protection_token.to_s, :value => form_authenticity_token) %>
+          <%= hidden_field_tag(:table_json) %>
+          <div class="modal-header">
+            <button type="button" class="close" ng-click="cancel()" aria-hidden="true">&times;</button>
+            <span class="modal-title">Post Results To Jira</span>
+          </div>
+          <div class="modal-body">
+            <div>
+              <h4>Optional Comment:</h4>
+              <%= text_area_tag(:optional_comment, '', style: 'width:100%') %>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <%= button_tag "Post Results To Jira", type: "button", :class => "btn-primary", id: "submit_jira_results_button",
+                    "ng-click" => "ok()", onclick: "prepare_data_table()" %>
+            <button type="button" class="btn-secondary" ng-click="cancel()">Close</button>
+          </div>
+      <% end %>
+    </script>
+    <%= button_tag "Post Results To Jira", :class => "btn-primary", id: "post_results_button", style: "display: none;",
+      "ng-click" => "open('post_results_comment.html')"%>
+</div>
+
+<p><div id="query_result" style="padding-bottom: 10px"></div></p>
+
+
+<%= javascript_include_tag "issue.js" %>
+<%= javascript_include_tag "angular_modals" %>

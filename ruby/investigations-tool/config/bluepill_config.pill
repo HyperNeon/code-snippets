@@ -1,0 +1,8 @@
+#! /usr/bin/env ruby
+
+require /REDACTED/
+
+# Require the clockwork pill so that the automation is spun up as a separate service outside of the Unicorn Workers
+require_relative 'clockwork_pill'
+
+/REDACTED/::Bluepill.start_application 'investigations-tool'

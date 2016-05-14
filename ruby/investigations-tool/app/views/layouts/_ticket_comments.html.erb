@@ -1,0 +1,47 @@
+<% if !@comments.nil? %>
+    <% if @comments.any? %>
+        <p>
+          <%= button_tag("Expand All", :class => "btn-secondary", "ng-click" => "toggle('.comment', true)") %>
+          <%= button_tag("Collapse All", :class => "btn-secondary", "ng-click" => "toggle('.comment', false)") %>
+        </p>
+
+        <accordion close-others="oneAtATime" id = "comment_accordion">
+            <% @comments.each_with_index do |comment, index| %>
+              <accordion-group ng-init="statuses[<%= index %>].open = false" is-open="statuses[<%= index %>].open" class="comment">
+                <accordion-heading>
+                    <p>
+                      <%= image_tag comment["author"]["avatarUrls"]["32x32"] %>
+                      Created <%= comment["created"] %> by <%= comment["author"]["displayName"] %>
+                      <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': statuses[<%= index %>].open, 'glyphicon-chevron-right': !statuses[<%= index %>].open}"></i>
+                    </p>
+                </accordion-heading>
+                <%= comment["body"].html_safe %>
+              </accordion-group>
+            <% end %>
+        </accordion>
+    <% else %>
+        <div class='alert alert-info' role='alert'> <p>This ticket doesn't have any comments yet</p> </div>
+    <% end %>
+    <% if flash[:comment_post_alert] %>
+        <div class='alert alert-danger' role='alert'>
+          <p> <%= flash[:comment_post_alert] %> </p>
+        </div>
+    <% end %>
+    <div id="post_comment_form">
+      <%= form_tag(post_comment_url(ticket_number: @ticket_number), method: 'post', remote: true,
+              onSubmit: "hide_post_comment_form()") do %>
+          <%= tag(:input, :type => 'hidden', :name => request_forgery_protection_token.to_s, :value => form_authenticity_token) %>
+          <h4>Add Comment:</h4>
+          <%= text_area_tag(:comment, '', style: 'width:100%') %>
+          <%= submit_tag("Post Comment", class: "btn-primary") %>
+      <% end %>
+    </div>
+<% else %>
+    <div class='alert alert-danger' role='alert'> <p>An Error Occurred While Loading Comments</p> </div>
+<% end %>
+
+<script type="text/javascript">
+    function hide_post_comment_form() {
+        $("#post_comment_form").html("<div class='alert alert-info' role='alert'> <p>Posting Comment...</p> </div>");
+    };
+</script>

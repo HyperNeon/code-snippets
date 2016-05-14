@@ -1,0 +1,109 @@
+<div class="row" style="padding-top: 10px">
+  <div class="col-md-4"><%= "ID: #{issue_data['Issue ID']}" %></div>
+  <div class="col-md-4"><%= "Utility: #{issue_data['Utility']}" %></div>
+  <div class="col-md-2" style= <%= "background-color:#{issue_data[:status_color]};border-radius:25px;" %> ><%= "Status: #{issue_data['Status']}" %></div>
+  <div class="col-md-2">
+    <div ng-controller="ModalCtrl">
+      <script type="text/ng-template" id="status.html">
+        <%= form_tag(update_status_url(ticket:issue_data['Ticket Number']), method: "post", onSubmit: "replace_submit_button()") do %>
+            <div class="modal-header">
+              <button type="button" class="close" ng-click="cancel()" aria-hidden="true">&times;</button>
+              <span class="modal-title">Update Status</span>
+            </div>
+            <div class="modal-body">
+              <div>
+                <h4>Set Status:</h4>
+                <%= select_tag(:status_id, options_for_select(transitions.map {|t| [t[:name], t[:id]]}),
+                  prompt: 'Status', required: true, :onchange => "show_resolutions()", id: "status_select") %>
+                <%= select_tag(:resolution, options_for_select(resolutions.map {|r| [r,r]}), prompt: 'Resolution',
+                  style: "display: none;", id: "resolution_select") %>
+                <%= hidden_field_tag(:transitions, transitions.to_json) %>
+                <%= tag(:input, :type => "hidden", :name => request_forgery_protection_token.to_s, :value => form_authenticity_token) %>
+              </div>
+              <div>
+                <h4>Optional Comment:</h4>
+                <%= text_area_tag(:comment, '', style: 'width:100%') %>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <%= submit_tag "Update", :class => "btn-primary" %>
+              <button type="button" class="btn-secondary" ng-click="cancel()">Close</button>
+            </div>
+        <% end %>
+      </script>
+      <a href ng-click="open('status.html')" class="btn-default">Edit Status</a>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-2">
+    <%= "Assignee: #{issue_data['Assignee']}" %>
+  </div>
+  <div class="col-md-2">
+    <div ng-controller="ModalCtrl">
+      <script type="text/ng-template" id="assignee_search.html">
+        <a>
+          <span bind-html-unsafe="match.model.display_name + ' [' + match.label +']' | typeaheadHighlight:query"></span>
+        </a>
+      </script>
+      <script type="text/ng-template" id="assignee.html">
+        <%= form_tag(assign_ticket_url(ticket: issue_data['Ticket Number']), method: "post", onSubmit: "replace_submit_button()") do %>
+            <div class="modal-header">
+              <button type="button" class="close" ng-click="cancel()" aria-hidden="true">&times;</button>
+              <span class="modal-title">Update Assignee</span>
+            </div>
+            <div class="modal-body">
+              <div ng-controller="TypeaheadCtrl">
+                <h4>Assignee Search:</h4>
+                <input name="assignee" type="text" ng-model="asyncSelected" placeholder="Usernames loaded via Jira" typeahead="user as user.name for user in getUsers($viewValue) | limitTo:10"
+                       typeahead-loading="loadingNames" typeahead-template-url="assignee_search.html" typeahead-wait-ms="500" class="form-control" autocomplete="off">
+                <i ng-show="loadingNames" class="glyphicon glyphicon-refresh"></i>
+              </div>
+              <div>
+                <h4>Optional Comment:</h4>
+                <%= text_area_tag(:comment, '', style: 'width:100%') %>
+              </div>
+            </div>
+            <%= tag(:input, :type => "hidden", :name => request_forgery_protection_token.to_s, :value => form_authenticity_token) %>
+            <div class="modal-footer">
+              <%= submit_tag "Assign", :class => "btn-primary" %>
+              <button type="button" class="btn-secondary" ng-click="cancel()">Close</button>
+            </div>
+        <% end %>
+      </script>
+
+      <a href ng-click="open('assignee.html')" class="btn-default">Edit Assignee</a>
+    </div>
+  </div>
+  <div class="col-md-4"><%= "Created At: #{l issue_data['Created'], format: :it_dates}" %></div>
+  <div class="col-md-4"><%= "Updated At: #{l issue_data['Updated'], format: :it_dates}" %></div>
+</div>
+<h5>Description</h5>
+<div class="well">
+  <%= simple_format(issue_data['Description']) %>
+</div>
+
+<div ng-controller="AccordionCtrl" id="AccordionCtrl">
+  <accordion close-others="oneAtATime" id = "load_comments_accordion">
+    <accordion-group is-open="status.outer_open">
+      <accordion-heading>
+        <p onclick="load_comment_form()">
+          Ticket Comments
+          <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': status.outer_open, 'glyphicon-chevron-right': !status.outer_open}"></i>
+        </p>
+      </accordion-heading>
+      <div id="jira_comments_container">
+        <%= form_tag(load_comments_url(ticket_number:issue_data['Ticket Number']), method: "get", remote: true, id: "load_comment_form") do %>
+          <%= tag(:input, :type => "hidden", :name => request_forgery_protection_token.to_s, :value => form_authenticity_token) %>
+        <% end %>
+        <div class='alert alert-info' role='alert'> <p>Loading Jira Comments</p> </div>
+      </div>
+    </accordion-group>
+  </accordion>
+</div>
+
+<script type="text/javascript">
+  function load_comment_form() {
+    $("#load_comment_form").submit();
+  }
+</script>

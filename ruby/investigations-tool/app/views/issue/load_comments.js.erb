@@ -1,0 +1,14 @@
+angular.element(document).ready(function () {
+
+    var elem = angular.element($('#jira_comments_container'));
+    //get the injector.
+    var injector = elem.injector();
+
+    scope= elem.scope();
+
+    injector.invoke(function($compile) {
+        var accordion = $compile("<%= escape_javascript(render partial: 'layouts/ticket_comments', locals: {comments: @comments}) %>")(scope);
+        $("#jira_comments_container").html(accordion);
+    });
+});
+
