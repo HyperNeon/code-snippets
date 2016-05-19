@@ -26,9 +26,9 @@ Warning: These scripts aren't perfect and they have their limitations so please 
 
 	- USE: Navigate to the folder containing the files you'd like to rename. Ensure 
 	there are no other files in the folder besides the ones you'd like to rename. 
-	Run the script rrd_rename.sh script. 
+	Run the script nwkrename.sh script. 
 
-	EX. ~/Workspace/ops/scripts/Rename/nwk_rename.sh
+	EX. ~/Workspace/ops/scripts/Rename/nwkrename.sh
 
 	- LIMITATIONS: The script renames every file in the current folder. Only the 
 	"NWK_" prefix is currently in use. If you'd like to modify the script for
